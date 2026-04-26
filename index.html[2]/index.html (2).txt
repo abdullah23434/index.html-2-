@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موازنة | رتب مالك بذكاء</title>
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --dark: #1a1a2e;
+            --light: #f4f4f9;
+            --accent: #3498db;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        p.subtitle { color: #888; margin-bottom: 30px; font-size: 0.9em; }
+
+        .input-group { margin-bottom: 25px; }
+        input {
+            width: 80%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: #0f3460;
+            color: white;
+            font-size: 1.2em;
+            text-align: center;
+            outline: none;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--primary); }
+
+        .results {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: scale(1.02); }
+
+        .card.saving { border-right: 5px solid var(--primary); }
+        .card.needs { border-right: 5px solid var(--accent); }
+        .card.wants { border-right: 5px solid #e94560; }
+
+        .label { font-weight: bold; }
+        .amount { font-size: 1.1em; color: var(--primary); }
+
+        .footer-note {
+            margin-top: 30px;
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>موازنة 💰</h1>
+    <p class="subtitle">وزع راتبك على قاعدة 50/30/20 بضغطة زر</p>
+
+    <div class="input-group">
+        <input type="number" id="salaryInput" placeholder="أدخل راتبك (مثلاً: 10000)" oninput="updateBudget()">
+    </div>
+
+    <div class="results">
+        <div class="card saving">
+            <span class="label">الادخار والاستثمار (20%)</span>
+            <span class="amount" id="savingVal">0 ريال</span>
+        </div>
+        <div class="card needs">
+            <span class="label">المصاريف الأساسية (50%)</span>
+            <span class="amount" id="needsVal">0 ريال</span>
+        </div>
+        <div class="card wants">
+            <span class="label">الرفاهية والرغبات (30%)</span>
+            <span class="amount" id="wantsVal">0 ريال</span>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        * يتم حفظ أرقامك تلقائياً على هذا الجهاز.
+    </div>
+</div>
+
+<script>
+    // هذه الدالة تعمل عند كتابة أي رقم
+    function updateBudget() {
+        const salary = document.getElementById('salaryInput').value;
+        
+        if (salary > 0) {
+            const saving = (salary * 0.20).toLocaleString();
+            const needs = (salary * 0.50).toLocaleString();
+            const wants = (salary * 0.30).toLocaleString();
+
+            document.getElementById('savingVal').innerText = saving + " ريال";
+            document.getElementById('needsVal').innerText = needs + " ريال";
+            document.getElementById('wantsVal').innerText = wants + " ريال";
+
+            // حفظ في المتصفح (Local Storage) عشان الـ "إدمان"
+            localStorage.setItem('userSalary', salary);
+        } else {
+            resetFields();
+        }
+    }
+
+    function resetFields() {
+        document.getElementById('savingVal').innerText = "0 ريال";
+        document.getElementById('needsVal').innerText = "0 ريال";
+        document.getElementById('wantsVal').innerText = "0 ريال";
+    }
+
+    // استعادة البيانات عند فتح الصفحة مرة أخرى
+    window.onload = function() {
+        const savedSalary = localStorage.getItem('userSalary');
+        if (savedSalary) {
+            document.getElementById('salaryInput').value = savedSalary;
+            updateBudget();
+        }
+    };
+</script>
+
+</body>
+</html>
