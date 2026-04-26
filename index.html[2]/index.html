@@ -3,150 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موازنة | رتب مالك بذكاء</title>
+    <title>ريالك | الإدارة المالية الذكية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2ecc71;
-            --dark: #1a1a2e;
-            --light: #f4f4f9;
-            --accent: #3498db;
+            --primary: #1a1a2e; /* كحلي ملكي */
+            --accent: #c5a059;  /* ذهبي مطفي */
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --text: #333;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark);
-            color: var(--light);
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            padding: 20px;
         }
 
         .container {
-            background: #16213e;
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--white);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-top: 8px solid var(--accent);
         }
 
-        h1 { color: var(--primary); margin-bottom: 10px; }
-        p.subtitle { color: #888; margin-bottom: 30px; font-size: 0.9em; }
-
-        .input-group { margin-bottom: 25px; }
-        input {
-            width: 80%;
-            padding: 15px;
-            border-radius: 10px;
-            border: none;
-            background: #0f3460;
-            color: white;
-            font-size: 1.2em;
+        header {
             text-align: center;
-            outline: none;
-            border: 2px solid transparent;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            color: var(--accent);
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
             transition: 0.3s;
         }
-        input:focus { border-color: var(--primary); }
 
-        .results {
+        input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .budget-grid {
             display: grid;
             gap: 15px;
             margin-top: 20px;
         }
 
-        .card {
-            background: #0f3460;
+        .budget-item {
+            background: #fafafa;
             padding: 15px;
             border-radius: 12px;
+            border-right: 5px solid var(--accent);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.2s;
         }
-        .card:hover { transform: scale(1.02); }
 
-        .card.saving { border-right: 5px solid var(--primary); }
-        .card.needs { border-right: 5px solid var(--accent); }
-        .card.wants { border-right: 5px solid #e94560; }
+        .item-info span {
+            display: block;
+            font-size: 0.8rem;
+            color: #888;
+        }
 
-        .label { font-weight: bold; }
-        .amount { font-size: 1.1em; color: var(--primary); }
+        .amount {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .custom-ratio {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+        }
+
+        .ratio-input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .days-counter {
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
 
         .footer-note {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #aaa;
             margin-top: 30px;
-            font-size: 0.8em;
-            color: #666;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>موازنة 💰</h1>
-    <p class="subtitle">وزع راتبك على قاعدة 50/30/20 بضغطة زر</p>
+    <header>
+        <h1>ريالك</h1>
+        <div class="tagline">إدارة مالية برؤية احترافية</div>
+    </header>
+
+    <div id="countdown" class="days-counter">
+        جاري حساب موعد الراتب...
+    </div>
 
     <div class="input-group">
-        <input type="number" id="salaryInput" placeholder="أدخل راتبك (مثلاً: 10000)" oninput="updateBudget()">
+        <label>أدخل الدخل الشهري (ريال)</label>
+        <input type="number" id="salary" placeholder="مثلاً: 12000" oninput="calculate()">
     </div>
 
-    <div class="results">
-        <div class="card saving">
-            <span class="label">الادخار والاستثمار (20%)</span>
-            <span class="amount" id="savingVal">0 ريال</span>
+    <div class="budget-grid">
+        <div class="budget-item">
+            <div class="item-info">
+                <strong>الضروريات</strong>
+                <div class="custom-ratio">
+                    <span>النسبة:</span>
+                    <input type="number" class="ratio-input" id="r1" value="50" oninput="calculate()">%
+                </div>
+            </div>
+            <div class="amount" id="val1">0</div>
         </div>
-        <div class="card needs">
-            <span class="label">المصاريف الأساسية (50%)</span>
-            <span class="amount" id="needsVal">0 ريال</span>
+
+        <div class="budget-item" style="border-right-color: #28a745;">
+            <div class="item-info">
+                <strong>الادخار والاستثمار</strong>
+                <div class="custom-ratio">
+                    <span>النسبة:</span>
+                    <input type="number" class="ratio-input" id="r2" value="20" oninput="calculate()">%
+                </div>
+            </div>
+            <div class="amount" id="val2" style="color: #28a745;">0</div>
         </div>
-        <div class="card wants">
-            <span class="label">الرفاهية والرغبات (30%)</span>
-            <span class="amount" id="wantsVal">0 ريال</span>
+
+        <div class="budget-item" style="border-right-color: #dc3545;">
+            <div class="item-info">
+                <strong>التزامات أو ديون</strong>
+                <div class="custom-ratio">
+                    <span>النسبة:</span>
+                    <input type="number" class="ratio-input" id="r3" value="20" oninput="calculate()">%
+                </div>
+            </div>
+            <div class="amount" id="val3" style="color: #dc3545;">0</div>
+        </div>
+
+        <div class="budget-item" style="border-right-color: #fd7e14;">
+            <div class="item-info">
+                <strong>مصاريف ترفيهية</strong>
+                <div class="custom-ratio">
+                    <span>النسبة:</span>
+                    <input type="number" class="ratio-input" id="r4" value="10" oninput="calculate()">%
+                </div>
+            </div>
+            <div class="amount" id="val4" style="color: #fd7e14;">0</div>
         </div>
     </div>
 
-    <div class="footer-note">
-        * يتم حفظ أرقامك تلقائياً على هذا الجهاز.
-    </div>
+    <p class="footer-note">جميع البيانات تُحفظ محلياً على جهازك فقط</p>
 </div>
 
 <script>
-    // هذه الدالة تعمل عند كتابة أي رقم
-    function updateBudget() {
-        const salary = document.getElementById('salaryInput').value;
+    function calculate() {
+        const salary = document.getElementById('salary').value || 0;
         
-        if (salary > 0) {
-            const saving = (salary * 0.20).toLocaleString();
-            const needs = (salary * 0.50).toLocaleString();
-            const wants = (salary * 0.30).toLocaleString();
+        // جلب النسب من المستخدم
+        const ratios = [
+            document.getElementById('r1').value,
+            document.getElementById('r2').value,
+            document.getElementById('r3').value,
+            document.getElementById('r4').value
+        ];
 
-            document.getElementById('savingVal').innerText = saving + " ريال";
-            document.getElementById('needsVal').innerText = needs + " ريال";
-            document.getElementById('wantsVal').innerText = wants + " ريال";
+        // الحساب والعرض
+        ratios.forEach((ratio, index) => {
+            const result = (salary * (ratio / 100)).toLocaleString();
+            document.getElementById(`val${index + 1}`).innerText = result + ' ر.س';
+        });
 
-            // حفظ في المتصفح (Local Storage) عشان الـ "إدمان"
-            localStorage.setItem('userSalary', salary);
-        } else {
-            resetFields();
-        }
+        // حفظ البيانات
+        localStorage.setItem('mySalary', salary);
+        ratios.forEach((r, i) => localStorage.setItem(`ratio${i}`, r));
     }
 
-    function resetFields() {
-        document.getElementById('savingVal').innerText = "0 ريال";
-        document.getElementById('needsVal').innerText = "0 ريال";
-        document.getElementById('wantsVal').innerText = "0 ريال";
+    function updateCountdown() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        let salaryDate = new Date(year, month, 27);
+
+        if (now > salaryDate) {
+            salaryDate = new Date(year, month + 1, 27);
+        }
+
+        const diff = Math.ceil((salaryDate - now) / (1000 * 60 * 60 * 24));
+        document.getElementById('countdown').innerText = `باقي ${diff} أيام على الراتب (27 ميلادي)`;
     }
 
-    // استعادة البيانات عند فتح الصفحة مرة أخرى
-    window.onload = function() {
-        const savedSalary = localStorage.getItem('userSalary');
-        if (savedSalary) {
-            document.getElementById('salaryInput').value = savedSalary;
-            updateBudget();
+    // استرجاع البيانات عند الفتح
+    window.onload = () => {
+        if(localStorage.getItem('mySalary')) {
+            document.getElementById('salary').value = localStorage.getItem('mySalary');
+            for(let i=0; i<4; i++) {
+                if(localStorage.getItem(`ratio${i}`)) {
+                    document.getElementById(`r${i+1}`).value = localStorage.getItem(`ratio${i}`);
+                }
+            }
+            calculate();
         }
+        updateCountdown();
     };
 </script>
 
